@@ -1,14 +1,19 @@
 const router = require('express').Router();
 const async =require('async');
 const Gig=require('../models/gig');
+const User=require('../models/user');
 
 router.get('/', (req, res, next) => {
-    res.render('main/home');
+    Gig.find({},function(err,gigs){
+        res.render('main/home',{gigs:gigs});
+    })
 });
 
 router.get('/my-gigs',(req,res,next)=>{
-    res.render('main/my-gigs');
-})
+    Gig.find({owner:req.user._id},function(err,gigs){
+        res.render('main/my-gigs',{gigs:gigs});
+    })
+});
 
 router.route('/add-new-gig')
     .get((req,res,next)=>{
@@ -24,7 +29,7 @@ router.route('/add-new-gig')
                 gig.about=req.body.gig_abou;
                 gig.price=req.body.gig_price;
                 gig.save(function(err){
-                    calback(err,gig);
+                    callback(err,gig);
                 });    
                 // gig.picture=req.body.gig_picture;
                 // gig.created=req.body.gig_created;
