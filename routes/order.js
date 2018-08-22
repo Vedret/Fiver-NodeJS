@@ -3,6 +3,7 @@ const Gig = require('../models/gig');
 const config = require('../config/config');
 let secretkey = config.SECRET_KEY;
 const stripe = require('stripe')(secretkey);
+const Order = require('../models/order');
 
 
 const fee = 3.15;
@@ -39,10 +40,32 @@ router.route('/payment')
             });
         }).then(function (charge) {
             // Do something
-            res.redirect('/');
+            let order = new Order();
+            order.buyer=req.session._id;
+            order.seller=req.session.owner;
+            order.gig=req.session.gig;
+            order.save(function(err){
+                req.session.gig=null;
+                req.session.price=null;
+                res.redirect('/user/'+req.user._id+'/orders/'+order._id)
+            })
         }).catch(function (err) {
             // Deal with an error
         });
+    });
+
+    //CHAT PAGE
+    router.get('/user/:userId/orders/:orderId',(req,res,next)=>{
+        req.session.orderId=req.params.orderId;
+        Order.findOne({_id:req.params.orderId})
+        .populate('buyer')
+        .populate('seller')
+        .populate('gig')
+        .exec(function(err,order){
+            console.log(order);
+            res.render('order/order-room',{layout:'chat_layout',order:order});
+            
+        })
     })
 
 
