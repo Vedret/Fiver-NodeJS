@@ -41,9 +41,9 @@ router.route('/payment')
         }).then(function (charge) {
             // Do something
             let order = new Order();
-            order.buyer=req.session._id;
-            order.seller=req.session.owner;
-            order.gig=req.session.gig;
+            order.buyer=req.user._id;
+            order.seller=gig.owner;
+            order.gig=gig._id
             order.save(function(err){
                 req.session.gig=null;
                 req.session.price=null;
@@ -67,6 +67,31 @@ router.route('/payment')
             
         })
     })
+
+    router.get('/user/:id/manage_orders', (req, res, next) => {
+        Order.find({ seller: req.user._id })
+        .populate('buyer')
+        .populate('seller')
+        .populate('gig')
+        .exec(function(err, orders) {
+            console.log(orders);
+          res.render('order/order-seller', { orders: orders });
+        });
+      });
+
+      router.get('/user/:id/orders', (req, res, next) => {
+       
+        Order.find({ buyer: req.user._id  })
+        .populate('buyer')
+        .populate('seller')
+        .populate('gig')
+        .exec(function(err, orders) {
+          console.log("oreeeersss>>>"+orders);
+          res.render('order/order-buyer', { orders: orders });
+        });
+      });
+
+
 
 
 module.exports = router;
