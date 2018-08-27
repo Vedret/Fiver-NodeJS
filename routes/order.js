@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const Gig = require('../models/gig');
 const config = require('../config/config');
-let secretkey = config.SECRET_KEY;
+const secretkey = config.SECRET_KEY;
 const stripe = require('stripe')(secretkey);
 const Order = require('../models/order');
 

@@ -2,12 +2,23 @@ const router = require('express').Router();
 const async =require('async');
 const Gig=require('../models/gig');
 const User=require('../models/user');
+const Promocode=require('../models/promocode');
 
 router.get('/', (req, res, next) => {
     Gig.find({},function(err,gigs){
         res.render('main/home',{gigs:gigs});
     })
 });
+
+router.route('/search')
+    .get((req,res,next)=>{
+        if(req.query.q){
+            console.log(req.query.q);
+        }
+    })
+    .post((req,res,next)=>{
+        res.redirect('/search?q='+req.body.search_input)
+    })
 
 router.get('/my-gigs',(req,res,next)=>{
     Gig.find({owner:req.user._id},function(err,gigs){
@@ -57,4 +68,27 @@ router.route('/add-new-gig')
         });
     });
 
+    router.get('/api/add-promocode', (req, res, next) => {
+        var promocode = new Promocode();
+        promocode.name = "testcoupon";
+        promocode.discount = 0.4;
+        promocode.save(function(err) {
+          res.json("Successful");
+        });
+      });
+      
+      router.post('/promocode', (req, res, next) => {
+        var promocode = req.body.promocode;
+        var totalPrice = req.session.price;
+        Promocode.findOne({ name: promocode }, function(err, foundCode) {
+          if (foundCode) {
+            var newPrice = foundCode.discount * totalPrice;
+            newPrice = totalPrice - newPrice;
+            req.session.price = newPrice;
+            res.json(newPrice);
+          } else {
+            res.json(0);
+          }
+        });
+      });
 module.exports = router;
