@@ -4,6 +4,11 @@ const Gig=require('../models/gig');
 const User=require('../models/user');
 const Promocode=require('../models/promocode');
 
+const algoliasearch=require('algoliasearch');
+
+var algoliasearch('Secret_XXXXXXXX', 'ID_XXXXXXXXX'); = algoliasearch('Secret_XXXXXXXX', 'ID_XXXXXXXXX');;
+var index = algoliasearch('Secret_XXXXXXXX', 'ID_XXXXXXXXX');.initIndex('GigSchema');
+
 router.get('/', (req, res, next) => {
     Gig.find({},function(err,gigs){
         res.render('main/home',{gigs:gigs});
@@ -13,7 +18,9 @@ router.get('/', (req, res, next) => {
 router.route('/search')
     .get((req,res,next)=>{
         if(req.query.q){
-            console.log(req.query.q);
+            index.search(req.query.q , function(err,content){
+                res.render('main/search_results',{content:content,search_result:req.query.q});
+            })
         }
     })
     .post((req,res,next)=>{
