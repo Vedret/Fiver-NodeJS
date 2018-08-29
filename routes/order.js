@@ -1,9 +1,11 @@
 const router = require('express').Router();
+const async = require('async');
 const Gig = require('../models/gig');
 const config = require('../config/config');
 const secretkey = config.SECRET_KEY;
 const stripe = require('stripe')(secretkey);
 const Order = require('../models/order');
+const User = require('../models/user');
 
 
 const fee = 3.15;
@@ -14,6 +16,29 @@ router.get('/checkout/single_package/:id', (req, res, next) => {
         req.session.gig = gig;
         req.session.price = totalPrice;
         res.render('checkout/single_package', { gig: gig, totalPrice: totalPrice });
+    });
+});
+
+router.get('/checkout/process_cart',(req,res,next)=>{
+    User.findOne({_id:req.user._id})
+    .populate('cart')
+    .exec(function(err,user){
+        let price=0;
+        let cartIsEmpty=true;
+        let totalPrice;
+        if(user.cart.length>0){
+            user.cart.map(function(item){
+                price += item.price;
+            });
+            totalPrice=price+fee;
+        }
+        
+        else{
+            cartIsEmpty = false;
+        }
+        req.session.price=totalPrice;
+        req.session.gig=user.cart;
+        res.render('order/cart',{foundUser:user,totalPrice:totalPrice,sub_total:price,cartIsEmpty:cartIsEmpty})
     });
 });
 
@@ -48,6 +73,49 @@ router.route('/payment')
                 req.session.gig=null;
                 req.session.price=null;
                 res.redirect('/user/'+req.user._id+'/orders/'+order._id)
+            })
+        }).catch(function (err) {
+            // Deal with an error
+        });
+    });
+
+    router.route('/payment/cart')
+    .get((req, res, next) => {
+        res.render('checkout/payment');
+    })
+    .post((req, res, next) => {
+        let gigs=req.session.gig;
+        let price=req.session.price;
+        price*=100;
+
+        stripe.customers.create({
+            email: req.user.email
+        }).then(function (customer) {
+            return stripe.customers.createSource(customer.id, {
+                source: req.body.stripeToken
+            });
+        }).then(function (source) {
+            return stripe.charges.create({
+                amount: price,
+                currency: 'usd',
+                customer: source.customer
+            });
+        }).then(function (charge) {
+            // Do something
+            gigs.map(function(gig){
+                let order = new Order();
+            order.buyer=req.user._id;
+            order.seller=gig.owner;
+            order.gig=gig._id
+            order.save(function(err){
+                req.session.gig=null;
+                req.session.price=null;
+            });              
+            });
+            User.update({_id:req.user.id},{$set:{cart:[]}},function(err,updated){
+                if(updated){
+                    res.redirect('/user/'+req.user._id+'/orders');
+                }
             })
         }).catch(function (err) {
             // Deal with an error
@@ -99,6 +167,40 @@ router.route('/payment')
           res.render('order/order-buyer', { orders: orders });
         });
       });
+
+      router.post('/add-to-cart',(req,res,next)=>{
+          const gigId=req.body.gig_id;
+          User.update(
+              {
+                  _id:req.user._id
+              },
+              {
+                  $push:{cart:gigId}
+              },function(err,count){
+                  res.json("Added to cart");
+              }
+          )
+      });
+
+router.post('/remove-item',(req,res,next)=>{
+    const gigId=req.body.gig_id;
+    async.waterfall([
+        function(callback){
+            Gig.findOne({_id:gigId},function(err,gig){
+                callback(err,gig);
+            })
+
+        },
+        function(gig, callback){
+            User.update({_id:req.user._id},{$pull:{cart:gigId}}
+            ,function(err,count){
+                let totalPrice=req.session.price - gig.price;
+                res.json({totalPrice:totalPrice,price:gig.price});
+            })
+
+        }
+    ]);
+}); 
 
 
 

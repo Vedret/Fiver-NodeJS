@@ -16,18 +16,74 @@ $(function() {
           promocode: input
         },
         success: function(data) {
-         
+          console.log(data);
           if (data === 0) {
-            $('#promocodeButton').html("Code Doesn't exist");
+            $('#promocodeResponse').html("Code Doesn't exist");
           } else {
             $('#promocodeButton').html('Applied');
             $('#promocodeButton').prop('disabled', true);
-            $('#promocodeButton').html("Successfully Applied the code!");
-            console.log("dataaa<<>>>>>"+data);
+            $('#promocodeResponse').html("Successfully Applied the code!");
             $('#totalPrice').html(data);
           }
         }
       });
     }
   });
+
+
+  $('#add-to-cart').on('click', function() {
+    var gig_id = $('#gig_id').val();
+
+    if (gig_id === '') {
+      return false;
+    } else {
+      $.ajax({
+        type: 'POST',
+        url: '/add-to-cart',
+        data: {
+          gig_id: gig_id
+        },
+        success: function(data) {
+          badge += 1;
+          $('.badge').html(badge);
+          $('#code').addClass('alert alert-success').html(data);
+        }
+      });
+    }
+  });
+
+  $('.remove-item').on('click', function() {
+    var gig_id = $(this).attr('id');
+    console.log(gig_id);
+    if (gig_id === '') {
+      return false;
+    } else {
+      $.ajax({
+        type: 'POST',
+        url: '/remove-item',
+        data: {
+          gig_id: gig_id
+        },
+        success: function(data) {
+          var subTotal = parseInt($('#subTotal').html());
+          subTotal -= data.price;
+          if (subTotal === 0) {
+            $('.cart').empty();
+            $('.cart').html('Cart is empty');
+
+          } else {
+            $('#subTotal').html(subTotal);
+            $('#totalPrice').html(data.totalPrice);
+          }
+
+          badge -= 1;
+          $('.badge').html(badge);
+          $('#' + gig_id).remove();
+        }
+      });
+    }
+  });
+
+
+
 });

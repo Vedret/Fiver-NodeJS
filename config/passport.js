@@ -1,7 +1,9 @@
 const passport = require('passport');
+const config = require('../config/config');
 const LocalStrategy = require('passport-local').Strategy;
+const GoogleStrategy=require('passport-google-oauth').OAuth2Strategy
 
-const config = require('./secret');
+
 const User = require('../models/user');
 
 passport.serializeUser(function(user, done) {
@@ -42,6 +44,31 @@ passport.use('local-login', new LocalStrategy({
   });
 
 }));
+
+
+passport.use(new GoogleStrategy({
+  algoliasearch('Secret_XXXXXXXX', 'ID_XXXXXXXXX');ID: config.GoogleClientId,
+  algoliasearch('Secret_XXXXXXXX', 'ID_XXXXXXXXX');Secret: config.GoogleClientSecret,
+  callbackURL: 'http://localhost:3000/auth/google/callback',
+  
+}, function(accessToken, refreshToken, profile, next) {
+    User.findOne({ googleId: profile.id }, function(err, user) {
+      if (user) {
+        return next(err, user);
+      } else {
+        var newUser = new User();
+        newUser.email = profile.emails[0].value;
+        newUser.googleId = profile.id;
+        newUser.name = profile.displayName;
+        newUser.photo = profile._json.image.url;
+        newUser.save(function(err) {
+          if (err) throw err;
+          next(err, newUser);
+        });
+      }
+    });
+}));
+
 
 
 exports.isAuthenticated = function(req, res, next) {

@@ -48,9 +48,33 @@ router.route('/login')
     failureFlash : true // allow flash messages
   }));
 
+  //Google Login
+router.get('/auth/google', passport.authenticate('google', { scope: 'email' }));
+
+router.get('/auth/google/callback', passport.authenticate('google', {
+  successRedirect: '/profile',
+  failureRedirect: '/login',
+  failureFlash: true
+ }));
+
 /* PROFILE ROUTE */
-router.get('/profile', passportConfig.isAuthenticated, (req, res, next) => {
-  res.render('accounts/profile');
+router.route('/profile')
+.get(passportConfig.isAuthenticated, (req, res, next) => {
+  res.render('accounts/profile',{message:req.flash('success')});
+})
+.post((req,res,next)=>{
+  User.findOne({_id:req.user._id},function(err,user){
+    if(user){
+      if(req.body.name) user.name=req.body.name;
+      if(req.body.email) user.name=req.body.email;
+      if(req.body.about) user.name=req.body.about;
+      user.save(function(err){
+        req.flash('success','Your details are updated');
+        res.redirect('/profile');
+      });
+      
+    }
+  });
 });
 
 
