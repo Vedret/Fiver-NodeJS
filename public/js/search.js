@@ -1,6 +1,6 @@
 
-var algoliasearch('Secret_XXXXXXXX', 'ID_XXXXXXXXX'); = algoliasearch('Secret_XXXXXXXX', 'ID_XXXXXXXXX');;
-var index = algoliasearch('Secret_XXXXXXXX', 'ID_XXXXXXXXX');.initIndex('GigSchema');
+var client = algoliasearch('Secret_XXXXXXXX', 'ID_XXXXXXXXX');;
+var index = client.initIndex('GigSchema');
 //initialize autocomplete on search input (ID selector must match)
 autocomplete('#aa-search-input',
 { hint: false }, {

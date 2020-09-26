@@ -49,7 +49,7 @@ GigSchema.plugin(mongooseAlgolia,{
   
   Model.SyncToAlgolia(); //Clears the Algolia index for this schema and synchronizes all documents to Algolia (based on the settings defined in your plugin settings)
   Model.SetAlgoliaSettings({
-    searchableAttributes: ['title','owner.name',] //Sets the settings for this schema, see [Algolia's Index settings parameters](https://www.algolia.com/doc/api-algoliasearch('Secret_XXXXXXXX', 'ID_XXXXXXXXX');/javascript/settings#set-settings) for more info.
+    searchableAttributes: ['title','owner.name',] //Sets the settings for this schema, see [Algolia's Index settings parameters](https://www.algolia.com/doc/api-client/javascript/settings#set-settings) for more info.
   });
 
 module.exports=Model;

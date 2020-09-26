@@ -6,8 +6,8 @@ const Promocode=require('../models/promocode');
 
 const algoliasearch=require('algoliasearch');
 
-var algoliasearch('Secret_XXXXXXXX', 'ID_XXXXXXXXX'); = algoliasearch('Secret_XXXXXXXX', 'ID_XXXXXXXXX');;
-var index = algoliasearch('Secret_XXXXXXXX', 'ID_XXXXXXXXX');.initIndex('GigSchema');
+var client = algoliasearch('Secret_XXXXXXXX', 'ID_XXXXXXXXX');;
+var index = client.initIndex('GigSchema');
 
 router.get('/', (req, res, next) => {
     Gig.find({},function(err,gigs){

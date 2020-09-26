@@ -47,9 +47,9 @@ passport.use('local-login', new LocalStrategy({
 
 
 passport.use(new GoogleStrategy({
-  algoliasearch('Secret_XXXXXXXX', 'ID_XXXXXXXXX');ID: config.GoogleClientId,
-  algoliasearch('Secret_XXXXXXXX', 'ID_XXXXXXXXX');Secret: config.GoogleClientSecret,
-  callbackURL: 'http://localhost:3000/auth/google/callback',
+  clientID: config.GoogleClientId,
+  clientSecret: config.GoogleClientSecret,
+  callbackURL: '/auth/google/callback',
   
 }, function(accessToken, refreshToken, profile, next) {
     User.findOne({ googleId: profile.id }, function(err, user) {
