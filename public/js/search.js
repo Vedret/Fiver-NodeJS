@@ -1,5 +1,5 @@
 
-var client = algoliasearch('Secret_XXXXXXXX', 'ID_XXXXXXXXX');;
+var client = algoliasearch('AdminAPIKey', 'SearchAPIKey');
 var index = client.initIndex('GigSchema');
 //initialize autocomplete on search input (ID selector must match)
 autocomplete('#aa-search-input',

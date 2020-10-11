@@ -3,10 +3,13 @@ const async =require('async');
 const Gig=require('../models/gig');
 const User=require('../models/user');
 const Promocode=require('../models/promocode');
+const config = require('../config/config');
+const AdminApiAgolia = config.AdminApiAgolia;
+const AgoliaApplicationID = config.AgoliaApplicationID;
 
 const algoliasearch=require('algoliasearch');
 
-var client = algoliasearch('Secret_XXXXXXXX', 'ID_XXXXXXXXX');;
+var client = algoliasearch('AdminApiAgolia', 'AgoliaApplicationID');
 var index = client.initIndex('GigSchema');
 
 router.get('/', (req, res, next) => {
