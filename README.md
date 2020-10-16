@@ -1,5 +1,5 @@
 # Fiver-NodeJS
-This is a NodeJs Fiver like app. Try it on Heroku here : https://fiverrlikeapp.herokuapp.com/
+ NodeJs Fiver like app. Try on Heroku here : https://fiverrlikeapp.herokuapp.com/
 
 Update: 
 Mongodb migrated from mlab to Mongodb Atlas.
@@ -11,3 +11,4 @@ MongoDD on mLab ,
 Stripe payment ,
 Algolia search ,
 Google signup ,
+Heroku PaaS
